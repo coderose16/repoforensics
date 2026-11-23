@@ -1,3 +1,8 @@
+from collections import Counter
+
+from db.models import Session, Commit, Developer, File, CodeChange
+
+
 def get_ownership(session, repo_id, recent=5):
     result = []
     for f in session.query(File).filter_by(repo_id=repo_id):
@@ -23,3 +28,9 @@ def get_ownership(session, repo_id, recent=5):
             "drift": original_id != top_id,
         })
     return result
+
+
+if __name__ == "__main__":
+    with Session() as s:
+        for r in get_ownership(s, 1):
+            print(r)
