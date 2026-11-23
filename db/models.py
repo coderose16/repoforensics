@@ -47,7 +47,30 @@ class CodeChange(Base):
     file_id: Mapped[int] = mapped_column(ForeignKey("file.file_id"))
     lines_added: Mapped[int]
     lines_deleted: Mapped[int]
+class Function(Base):
+    __tablename__ = "code_function"
+    function_id: Mapped[int] = mapped_column(primary_key=True)
+    file_id: Mapped[int] = mapped_column(ForeignKey("file.file_id"))
+    name: Mapped[str] = mapped_column(String(200))
+    created_commit_id: Mapped[int] = mapped_column(ForeignKey("git_commit.commit_id"))
+    deleted_commit_id: Mapped[int | None] = mapped_column(ForeignKey("git_commit.commit_id"))
 
+
+class FunctionChange(Base):
+    __tablename__ = "function_change"
+    change_id: Mapped[int] = mapped_column(primary_key=True)
+    function_id: Mapped[int] = mapped_column(ForeignKey("code_function.function_id"))
+    commit_id: Mapped[int] = mapped_column(ForeignKey("git_commit.commit_id"))
+    change_type: Mapped[str] = mapped_column(String(20))  # created / modified / deleted
+
+
+class CodeFossil(Base):
+    __tablename__ = "code_fossil"
+    fossil_id: Mapped[int] = mapped_column(primary_key=True)
+    function_id: Mapped[int] = mapped_column(ForeignKey("code_function.function_id"))
+    deleted_commit_id: Mapped[int] = mapped_column(ForeignKey("git_commit.commit_id"))
+    last_code: Mapped[str] = mapped_column(Text)
+    replacement_function_id: Mapped[int | None] = mapped_column(ForeignKey("code_function.function_id"))
 
 engine = create_engine("sqlite:///repoforensics.db")
 Session = sessionmaker(engine)
